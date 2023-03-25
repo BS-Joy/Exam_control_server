@@ -1,0 +1,20 @@
+[
+    {
+        "LVT":"L1 T1",
+        "course":["cse-210","cse-211"],
+        "section":["A", "B", "C", "D", "E"],
+        "Total_students": 60
+    },
+    {
+        "LVT":"L1 T2",
+        "course":["cse-310","cse-311"],
+        "section":["A", "B", "C", "D", "E", "F"],
+        "Total_students": 58
+    },
+    {
+        "LVT":"L1 T3",
+        "course":["cse-410", "cse-411", "cse-412"],
+        "section":["A", "B", "C", "D", "E", "F", "G"],
+        "Total_students": 52
+    }
+]
