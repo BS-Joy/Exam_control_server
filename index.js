@@ -5,14 +5,20 @@ const levelTerm = require('./dummy.json');
 const teacher = require('./teacher.json');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
 
 const uri = "mongodb+srv://admin-1:admin12345@cluster0.ac4rtpa.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+  });
 
 async function run() {
     try {
@@ -20,11 +26,12 @@ async function run() {
         const exam_reg = database.collection('exam reg');
         const routine = database.collection('routine');
         const room_info = database.collection('room_info');
+        const courses = database.collection('courses');
 
         // create exam
         app.post('/', async (req, res) => {
-            const user = req.body;
-            const result = await exam_reg.insertOne(user);
+            const exam = req.body;
+            const result = await exam_reg.insertOne(exam);
         });
 
         // create routine
@@ -32,6 +39,20 @@ async function run() {
             const routine_data = req.body;
             const result = await routine.insertOne(routine_data);
         });
+
+        // add courses to the database:
+        app.post('/add_courses', async(req, res) => {
+            const course = req.body;
+            const result = await courses.insertOne(course);
+        })
+
+        // to get all the courses according to level and terms
+        app.get('/get_courses/:lvt', async (req, res) => {
+            const levelTerm = req.params.lvt;
+            const cursor = courses.find({level_term: levelTerm});
+            const result = await cursor.toArray();
+            res.send(result)
+        } )
         
         // to display all the routine
         app.get('/', async (req, res) => {
@@ -68,7 +89,7 @@ async function run() {
             res.send(data);
         })
 
-        // getting number of students on a specific date for a specific course
+        // for getting number of students on a specific date for a specific course
         app.get('/students/:course', async (req, res) => {
             const course_code = req.params.course;
             const query = {course: course_code };
@@ -76,6 +97,13 @@ async function run() {
             const data = await cursor.toArray();
             res.send(data)
             
+        })
+
+        // get all the rooms
+        app.get('/rooms', async (req, res) => {
+            const cursor = room_info.find({});
+            const result = await cursor.toArray()
+            res.send(result);
         })
     }
     finally {
